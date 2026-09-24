@@ -1,0 +1,86 @@
+:root {
+  --color-bg: #fff8ee;
+  --color-text: #2d2a26;
+  --color-muted: #6b6558;
+  --color-faint: #87867f;
+  --color-border: rgba(45, 42, 38, 0.12);
+  --color-coral: #ff6b6b;
+  --color-coral-dark: #e24c4c;
+  --color-teal: #4ecdc4;
+  --color-yellow: #ffd93d;
+  --color-purple: #a78bfa;
+  --font-display: 'Baloo 2', cursive;
+  --font-body: 'Nunito', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  margin: 0;
+}
+
+a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+button {
+  font-family: var(--font-body);
+}
+
+.btn-primary {
+  background: var(--color-coral);
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 14px 28px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background: var(--color-coral-dark);
+}
+
+.btn-outline {
+  border: 2px solid var(--color-text);
+  color: var(--color-text);
+  background: transparent;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 12px 28px;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+}

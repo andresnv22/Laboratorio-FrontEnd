@@ -1,0 +1,73 @@
+<div class="page-head">
+  <span class="breadcrumb">Inicio / Catálogo</span>
+  <div class="title-row">
+    <h1>Catálogo de juguetes</h1>
+    <span class="count">{{ filteredProducts().length }} de {{ allProducts.length }} productos</span>
+  </div>
+</div>
+
+<div class="catalog-body">
+  <aside class="filters card">
+    <div class="filter-group">
+      <span class="filter-title">Categoría</span>
+      @for (category of categories; track category) {
+        <label class="filter-option">
+          <input
+            type="checkbox"
+            [checked]="isSelected(category)"
+            (change)="toggleCategory(category)"
+          />
+          {{ category }}
+        </label>
+      }
+    </div>
+    <div class="divider"></div>
+    <div class="filter-group">
+      <span class="filter-title">Precio</span>
+      <div class="price-range">
+        <input type="text" value="$0" readonly />
+        <span>–</span>
+        <input type="text" value="$200.000" readonly />
+      </div>
+    </div>
+  </aside>
+
+  <div class="grid-wrap">
+    <div class="products-grid">
+      @for (product of filteredProducts(); track product.id) {
+        <div class="product-card card">
+          <a
+            [routerLink]="['/producto', product.id]"
+            class="product-image"
+            [style.background]="product.bgHex"
+          >
+            @if (product.compareAtPrice) {
+              <span class="discount-tag">
+                -{{ (1 - product.price / product.compareAtPrice) * 100 | number: '1.0-0' }}%
+              </span>
+            }
+            <svg width="76" height="76" viewBox="0 0 24 24" fill="none" [attr.stroke]="product.iconHex" stroke-width="1.4">
+              <rect x="3" y="3" width="7" height="7" rx="1.5" />
+              <rect x="14" y="3" width="7" height="7" rx="1.5" />
+              <rect x="8.5" y="14" width="7" height="7" rx="1.5" />
+            </svg>
+          </a>
+          <div class="product-info">
+            <a [routerLink]="['/producto', product.id]" class="product-name">{{ product.name }}</a>
+            <span class="product-age">Edad {{ product.ageRange }}</span>
+            <div class="price-row">
+              <span class="price">{{ product.price | currency: 'COP':'symbol-narrow':'1.0-0' }}</span>
+              @if (product.compareAtPrice) {
+                <span class="price-old">{{ product.compareAtPrice | currency: 'COP':'symbol-narrow':'1.0-0' }}</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (filteredProducts().length === 0) {
+      <p class="empty">No hay productos que coincidan con los filtros seleccionados.</p>
+    }
+  </div>
+</div>
