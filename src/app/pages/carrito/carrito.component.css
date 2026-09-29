@@ -121,24 +121,6 @@
   font-size: 22px;
 }
 
-.promo-row {
-  display: flex;
-  gap: 10px;
-}
-
-.promo-row input {
-  flex: 1;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(45, 42, 38, 0.15);
-  font-size: 14px;
-}
-
-.apply-btn {
-  padding: 12px 18px;
-  font-size: 14px;
-}
-
 .totals {
   display: flex;
   flex-direction: column;
@@ -183,6 +165,41 @@
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 26px;
+}
+
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.field input {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(45, 42, 38, 0.2);
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+
+.field input.ng-invalid.ng-touched {
+  border-color: var(--color-coral-dark);
+}
+
+.field-error {
+  color: #a12b2b;
+  font-weight: 600;
+}
+
+.order-confirm code {
+  font-size: 13px;
 }
 
 .checkout-btn {

@@ -75,8 +75,14 @@
     <h2>Los favoritos de la semana</h2>
     <a routerLink="/catalogo" class="link-accent">Ver todos →</a>
   </div>
+  @if (loading()) {
+    <p class="status-msg">Cargando productos…</p>
+  }
+  @if (error(); as message) {
+    <p class="status-msg error">{{ message }}</p>
+  }
   <div class="products-grid">
-    @for (product of featured; track product.id) {
+    @for (product of featured(); track product.id) {
       <div class="product-card card">
         <a [routerLink]="['/producto', product.id]" class="product-image" [style.background]="product.bgHex">
           <svg width="80" height="80" viewBox="0 0 24 24" fill="none" [attr.stroke]="product.iconHex" stroke-width="1.4">

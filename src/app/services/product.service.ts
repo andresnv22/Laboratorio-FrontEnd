@@ -1,115 +1,36 @@
-import { Injectable } from '@angular/core';
-import { Product } from '../models/product.model';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable, map } from 'rxjs';
+import { API_URL } from '../config/api.config';
+import { ApiProduct, Product, toProduct } from '../models/product.model';
+
+export interface ProductFilters {
+  category?: string;
+  search?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
-  private readonly products: Product[] = [
-    {
-      id: 'mega-torre-bloques',
-      name: 'Mega Torre de Bloques 200 pzs',
-      category: 'Bloques',
-      price: 89900,
-      compareAtPrice: 105900,
-      rating: 4.2,
-      reviewCount: 186,
-      ageRange: '6–8 años',
-      description:
-        'Torre de bloques de construcción de 200 piezas compatibles, ideal para desarrollar la motricidad fina y la creatividad. Incluye base giratoria y bolsa de almacenamiento reutilizable.',
-      pieces: 200,
-      material: 'Plástico ABS libre de BPA',
-      colorHex: '#E24C4C',
-      bgHex: '#FFECEC',
-      iconHex: '#E24C4C',
-    },
-    {
-      id: 'osito-suave',
-      name: 'Osito Suave Grande 45cm',
-      category: 'Peluches',
-      price: 64900,
-      rating: 4.8,
-      reviewCount: 94,
-      ageRange: '0–2 años',
-      description:
-        'Peluche de oso extra suave de 45cm, hipoalergénico y lavable a máquina. El compañero perfecto para la hora de dormir.',
-      material: 'Felpa hipoalergénica',
-      colorHex: '#B8860B',
-      bgHex: '#FDEFD9',
-      iconHex: '#B8860B',
-    },
-    {
-      id: 'camion-bomberos',
-      name: 'Camión de Bomberos a Control Remoto',
-      category: 'Vehículos',
-      price: 129900,
-      rating: 4.4,
-      reviewCount: 57,
-      ageRange: '6–8 años',
-      description:
-        'Camión de bomberos a control remoto con luces y sonido reales, escalera extensible y control de largo alcance.',
-      material: 'Plástico resistente + metal',
-      colorHex: '#2E9191',
-      bgHex: '#E4F5F3',
-      iconHex: '#2E9191',
-    },
-    {
-      id: 'aventura-tablero',
-      name: 'Aventura en el Tablero',
-      category: 'Juegos de mesa',
-      price: 74900,
-      rating: 4.6,
-      reviewCount: 132,
-      ageRange: '6–99 años',
-      description:
-        'Juego de mesa familiar de estrategia y aventura para 2 a 6 jugadores. Partidas de 30 a 45 minutos.',
-      material: 'Cartón + madera',
-      colorHex: '#6B4D9E',
-      bgHex: '#EFEAFB',
-      iconHex: '#6B4D9E',
-    },
-    {
-      id: 'bloques-magneticos',
-      name: 'Set de Bloques Magnéticos',
-      category: 'Bloques',
-      price: 99900,
-      rating: 4.5,
-      reviewCount: 41,
-      ageRange: '3–5 años',
-      description: 'Set de 60 piezas magnéticas translúcidas para construir estructuras 2D y 3D.',
-      pieces: 60,
-      material: 'Plástico ABS + imanes',
-      colorHex: '#E24C4C',
-      bgHex: '#FFECEC',
-      iconHex: '#E24C4C',
-    },
-    {
-      id: 'balon-espuma',
-      name: 'Balón de Espuma Multicolor',
-      category: 'Vehículos',
-      price: 29900,
-      rating: 4.1,
-      reviewCount: 22,
-      ageRange: '3–5 años',
-      description: 'Balón liviano de espuma de alta densidad, ideal para juegos de interior.',
-      material: 'Espuma EVA',
-      colorHex: '#2E9191',
-      bgHex: '#E4F5F3',
-      iconHex: '#2E9191',
-    },
-  ];
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${API_URL}/products`;
 
-  getAll(): Product[] {
-    return this.products;
+  getAll(filters: ProductFilters = {}): Observable<Product[]> {
+    let params = new HttpParams();
+    if (filters.category) params = params.set('category', filters.category);
+    if (filters.search) params = params.set('search', filters.search);
+
+    return this.http
+      .get<ApiProduct[]>(this.baseUrl, { params })
+      .pipe(map((list) => list.map(toProduct)));
   }
 
-  getById(id: string): Product | undefined {
-    return this.products.find((p) => p.id === id);
+  getById(id: string): Observable<Product> {
+    return this.http.get<ApiProduct>(`${this.baseUrl}/${encodeURIComponent(id)}`).pipe(map(toProduct));
   }
 
-  getFeatured(): Product[] {
-    return this.products.slice(0, 4);
-  }
-
-  getRelated(excludeId: string): Product[] {
-    return this.products.filter((p) => p.id !== excludeId).slice(0, 4);
+  getRelated(id: string): Observable<Product[]> {
+    return this.http
+      .get<ApiProduct[]>(`${this.baseUrl}/${encodeURIComponent(id)}/related`)
+      .pipe(map((list) => list.map(toProduct)));
   }
 }

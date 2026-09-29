@@ -1,54 +1,96 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { Product } from '../models/product.model';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable } from 'rxjs';
+import { API_URL } from '../config/api.config';
+import { ApiProduct, Product, toProduct } from '../models/product.model';
 
 export interface CartItem {
   product: Product;
   quantity: number;
 }
 
+interface ApiCart {
+  items: { productId: string; quantity: number; product: ApiProduct }[];
+  subtotal: number;
+  shipping: number;
+  total: number;
+}
+
+interface CartState {
+  items: CartItem[];
+  subtotal: number;
+  shipping: number;
+  total: number;
+}
+
+const EMPTY_CART: CartState = { items: [], subtotal: 0, shipping: 0, total: 0 };
+
+// El carrito vive en MongoDB. Este servicio guarda la última respuesta del
+// backend en un signal, así el header, el carrito y el producto se actualizan solos.
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  private readonly items = signal<CartItem[]>([]);
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${API_URL}/cart`;
 
-  readonly cartItems = computed(() => this.items());
+  private readonly state = signal<CartState>(EMPTY_CART);
 
+  readonly cartItems = computed(() => this.state().items);
+  readonly subtotal = computed(() => this.state().subtotal);
+  readonly shipping = computed(() => this.state().shipping);
+  readonly total = computed(() => this.state().total);
   readonly itemCount = computed(() =>
-    this.items().reduce((total, item) => total + item.quantity, 0)
+    this.state().items.reduce((sum, item) => sum + item.quantity, 0)
   );
 
-  readonly subtotal = computed(() =>
-    this.items().reduce((total, item) => total + item.product.price * item.quantity, 0)
-  );
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
+
+  constructor() {
+    this.reload();
+  }
+
+  reload(): void {
+    this.run(this.http.get<ApiCart>(this.baseUrl));
+  }
 
   add(product: Product, quantity = 1): void {
-    const current = this.items();
-    const existing = current.find((item) => item.product.id === product.id);
-    if (existing) {
-      this.items.set(
-        current.map((item) =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
-        )
-      );
-    } else {
-      this.items.set([...current, { product, quantity }]);
-    }
+    this.run(this.http.post<ApiCart>(`${this.baseUrl}/items`, { productId: product.id, quantity }));
   }
 
   updateQuantity(productId: string, quantity: number): void {
-    if (quantity <= 0) {
-      this.remove(productId);
-      return;
-    }
-    this.items.set(
-      this.items().map((item) => (item.product.id === productId ? { ...item, quantity } : item))
+    this.run(
+      this.http.patch<ApiCart>(`${this.baseUrl}/items/${encodeURIComponent(productId)}`, { quantity })
     );
   }
 
   remove(productId: string): void {
-    this.items.set(this.items().filter((item) => item.product.id !== productId));
+    this.run(this.http.delete<ApiCart>(`${this.baseUrl}/items/${encodeURIComponent(productId)}`));
   }
 
-  clear(): void {
-    this.items.set([]);
+  private run(request: Observable<ApiCart>): void {
+    this.loading.set(true);
+    request.subscribe({
+      next: (cart) => {
+        this.state.set({
+          items: cart.items.map((item) => ({ product: toProduct(item.product), quantity: item.quantity })),
+          subtotal: cart.subtotal,
+          shipping: cart.shipping,
+          total: cart.total,
+        });
+        this.error.set(null);
+        this.loading.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.error.set(describeError(err));
+        this.loading.set(false);
+      },
+    });
   }
+}
+
+export function describeError(err: HttpErrorResponse): string {
+  if (err.status === 0) {
+    return 'No se pudo conectar con el servidor. ¿Está corriendo el backend en http://localhost:3000?';
+  }
+  return err.error?.error ?? 'Ocurrió un error inesperado. Intenta de nuevo.';
 }

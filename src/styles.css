@@ -84,3 +84,26 @@ button {
   border: 1px solid var(--color-border);
   border-radius: 20px;
 }
+
+/* Mensajes de estado al hablar con la API (cargando, errores) */
+.status-msg {
+  margin: 0 0 20px 0;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-size: 15px;
+}
+
+.status-msg.error {
+  background: #ffecec;
+  border-color: rgba(226, 76, 76, 0.3);
+  color: #a12b2b;
+}
+
+.status-msg.success {
+  background: #e4f5f3;
+  border-color: rgba(46, 145, 145, 0.3);
+  color: #1e6b6b;
+}

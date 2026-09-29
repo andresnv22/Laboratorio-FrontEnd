@@ -1,104 +1,117 @@
-@if (product(); as p) {
-  <div class="breadcrumb-row">
-    <span class="breadcrumb">Inicio / Catálogo / {{ p.name }}</span>
-  </div>
-
-  <div class="product-body">
-    <div class="gallery">
-      <div class="main-image" [style.background]="p.bgHex">
-        <svg width="220" height="220" viewBox="0 0 24 24" fill="none" [attr.stroke]="p.iconHex" stroke-width="1.1">
-          <rect x="3" y="3" width="7" height="7" rx="1.5" />
-          <rect x="14" y="3" width="7" height="7" rx="1.5" />
-          <rect x="8.5" y="14" width="7" height="7" rx="1.5" />
-        </svg>
-      </div>
-      <div class="thumbs">
-        <div class="thumb active" [style.background]="p.bgHex"></div>
-        <div class="thumb" style="background: #fdefd9"></div>
-        <div class="thumb" style="background: #e4f5f3"></div>
-        <div class="thumb" style="background: #efeafb"></div>
-      </div>
+@switch (status()) {
+  @case ('loading') {
+    <div class="not-found">
+      <p class="status-msg">Cargando producto…</p>
     </div>
+  }
 
-    <div class="info">
-      <span class="category" [style.color]="p.colorHex">{{ p.category }}</span>
-      <h1>{{ p.name }}</h1>
-      <div class="rating-row">
-        <span class="stars">★★★★☆</span>
-        <span class="rating-text">{{ p.rating }} ({{ p.reviewCount }} reseñas)</span>
-      </div>
-      <div class="price-row">
-        <span class="price">{{ p.price | currency: 'COP':'symbol-narrow':'1.0-0' }}</span>
-        @if (p.compareAtPrice) {
-          <span class="price-old">{{ p.compareAtPrice | currency: 'COP':'symbol-narrow':'1.0-0' }}</span>
-          <span class="discount-tag">-{{ discountPercent() }}%</span>
-        }
-      </div>
-      <p class="description">{{ p.description }}</p>
-
-      <div class="colors">
-        <span class="label">Color</span>
-        <div class="color-pills">
-          <button class="pill selected" [style.background]="p.colorHex" aria-label="Color principal"></button>
-          <button class="pill" style="background: #4ecdc4" aria-label="Teal"></button>
-          <button class="pill" style="background: #ffd93d" aria-label="Amarillo"></button>
-          <button class="pill" style="background: #a78bfa" aria-label="Morado"></button>
-        </div>
-      </div>
-
-      <div class="purchase-row">
-        <div class="stepper">
-          <button type="button" aria-label="Restar" (click)="decrement()">–</button>
-          <span>{{ quantity() }}</span>
-          <button type="button" aria-label="Sumar" (click)="increment()">+</button>
-        </div>
-        <button type="button" class="btn-primary add-cart" (click)="addToCart()">Añadir al carrito</button>
-      </div>
-      <a routerLink="/carrito" class="btn-outline buy-now" (click)="addToCart()">Comprar ahora</a>
-
-      <div class="specs card">
-        <div class="spec-row">
-          <span class="spec-label">Edad recomendada</span>
-          <span class="spec-value">{{ p.ageRange }}</span>
-        </div>
-        @if (p.pieces) {
-          <div class="spec-row">
-            <span class="spec-label">Piezas</span>
-            <span class="spec-value">{{ p.pieces }}</span>
-          </div>
-        }
-        @if (p.material) {
-          <div class="spec-row">
-            <span class="spec-label">Material</span>
-            <span class="spec-value">{{ p.material }}</span>
-          </div>
-        }
-      </div>
+  @case ('not-found') {
+    <div class="not-found">
+      <h1>Producto no encontrado</h1>
+      <a routerLink="/catalogo" class="btn-primary">Volver al catálogo</a>
     </div>
-  </div>
+  }
 
-  <section class="related">
-    <h2>También te puede interesar</h2>
-    <div class="related-grid">
-      @for (item of related(); track item.id) {
-        <a [routerLink]="['/producto', item.id]" class="related-card card">
-          <div class="related-image" [style.background]="item.bgHex">
-            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" [attr.stroke]="item.iconHex" stroke-width="1.4">
+  @case ('error') {
+    <div class="not-found">
+      <p class="status-msg error">{{ errorMessage() }}</p>
+      <a routerLink="/catalogo" class="btn-primary">Volver al catálogo</a>
+    </div>
+  }
+
+  @case ('ok') {
+    @if (product(); as p) {
+      <div class="breadcrumb-row">
+        <span class="breadcrumb">Inicio / Catálogo / {{ p.name }}</span>
+      </div>
+
+      <div class="product-body">
+        <div class="gallery">
+          <div class="main-image" [style.background]="p.bgHex">
+            <svg width="220" height="220" viewBox="0 0 24 24" fill="none" [attr.stroke]="p.iconHex" stroke-width="1.1">
               <rect x="3" y="3" width="7" height="7" rx="1.5" />
               <rect x="14" y="3" width="7" height="7" rx="1.5" />
+              <rect x="8.5" y="14" width="7" height="7" rx="1.5" />
             </svg>
           </div>
-          <div class="related-info">
-            <span class="related-name">{{ item.name }}</span>
-            <span class="related-price">{{ item.price | currency: 'COP':'symbol-narrow':'1.0-0' }}</span>
+        </div>
+
+        <div class="info">
+          <span class="category" [style.color]="p.colorHex">{{ p.category }}</span>
+          <h1>{{ p.name }}</h1>
+          <div class="rating-row">
+            <span class="stars" [attr.aria-label]="p.rating + ' de 5 estrellas'">{{ stars() }}</span>
+            <span class="rating-text">{{ p.rating }} ({{ p.reviewCount }} reseñas)</span>
           </div>
-        </a>
+          <div class="price-row">
+            <span class="price">{{ p.price | currency: 'COP':'symbol-narrow':'1.0-0' }}</span>
+            @if (p.compareAtPrice) {
+              <span class="price-old">{{ p.compareAtPrice | currency: 'COP':'symbol-narrow':'1.0-0' }}</span>
+              <span class="discount-tag">-{{ discountPercent() }}%</span>
+            }
+          </div>
+          <p class="description">{{ p.description }}</p>
+
+          <div class="purchase-row">
+            <div class="stepper">
+              <button type="button" aria-label="Restar" (click)="decrement()">–</button>
+              <span>{{ quantity() }}</span>
+              <button type="button" aria-label="Sumar" (click)="increment()">+</button>
+            </div>
+            <button type="button" class="btn-primary add-cart" (click)="addToCart()">Añadir al carrito</button>
+          </div>
+          <a routerLink="/carrito" class="btn-outline buy-now" (click)="addToCart()">Comprar ahora</a>
+
+          @if (cartError(); as message) {
+            <p class="status-msg error">{{ message }}</p>
+          } @else if (justAdded()) {
+            <p class="status-msg success">
+              Agregado al carrito. <a routerLink="/carrito">Ver carrito →</a>
+            </p>
+          }
+
+          <div class="specs card">
+            <div class="spec-row">
+              <span class="spec-label">Edad recomendada</span>
+              <span class="spec-value">{{ p.ageRange }}</span>
+            </div>
+            @if (p.pieces) {
+              <div class="spec-row">
+                <span class="spec-label">Piezas</span>
+                <span class="spec-value">{{ p.pieces }}</span>
+              </div>
+            }
+            @if (p.material) {
+              <div class="spec-row">
+                <span class="spec-label">Material</span>
+                <span class="spec-value">{{ p.material }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      @if (related().length > 0) {
+        <section class="related">
+          <h2>También te puede interesar</h2>
+          <div class="related-grid">
+            @for (item of related(); track item.id) {
+              <a [routerLink]="['/producto', item.id]" class="related-card card">
+                <div class="related-image" [style.background]="item.bgHex">
+                  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" [attr.stroke]="item.iconHex" stroke-width="1.4">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                    <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                  </svg>
+                </div>
+                <div class="related-info">
+                  <span class="related-name">{{ item.name }}</span>
+                  <span class="related-price">{{ item.price | currency: 'COP':'symbol-narrow':'1.0-0' }}</span>
+                </div>
+              </a>
+            }
+          </div>
+        </section>
       }
-    </div>
-  </section>
-} @else {
-  <div class="not-found">
-    <h1>Producto no encontrado</h1>
-    <a routerLink="/catalogo" class="btn-primary">Volver al catálogo</a>
-  </div>
+    }
+  }
 }

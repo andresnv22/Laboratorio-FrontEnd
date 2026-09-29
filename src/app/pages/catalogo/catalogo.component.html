@@ -2,7 +2,9 @@
   <span class="breadcrumb">Inicio / Catálogo</span>
   <div class="title-row">
     <h1>Catálogo de juguetes</h1>
-    <span class="count">{{ filteredProducts().length }} de {{ allProducts.length }} productos</span>
+    @if (!loading() && !error()) {
+      <span class="count">{{ filteredProducts().length }} de {{ allProducts().length }} productos</span>
+    }
   </div>
 </div>
 
@@ -25,14 +27,33 @@
     <div class="filter-group">
       <span class="filter-title">Precio</span>
       <div class="price-range">
-        <input type="text" value="$0" readonly />
+        <input
+          type="text"
+          inputmode="numeric"
+          placeholder="Mínimo"
+          aria-label="Precio mínimo"
+          (input)="setMinPrice($any($event.target).value)"
+        />
         <span>–</span>
-        <input type="text" value="$200.000" readonly />
+        <input
+          type="text"
+          inputmode="numeric"
+          placeholder="Máximo"
+          aria-label="Precio máximo"
+          (input)="setMaxPrice($any($event.target).value)"
+        />
       </div>
     </div>
   </aside>
 
   <div class="grid-wrap">
+    @if (loading()) {
+      <p class="status-msg">Cargando productos…</p>
+    }
+    @if (error(); as message) {
+      <p class="status-msg error">{{ message }}</p>
+    }
+
     <div class="products-grid">
       @for (product of filteredProducts(); track product.id) {
         <div class="product-card card">
@@ -66,7 +87,7 @@
       }
     </div>
 
-    @if (filteredProducts().length === 0) {
+    @if (!loading() && !error() && filteredProducts().length === 0) {
       <p class="empty">No hay productos que coincidan con los filtros seleccionados.</p>
     }
   </div>
