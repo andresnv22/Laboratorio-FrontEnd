@@ -1,6 +1,6 @@
 # Juguetón — Backend (Node.js + Express + TypeScript + MongoDB/Mongoose)
 
-API REST para la tienda de juguetes. Cubre **productos**, **carrito** y **pedidos** (CRUD completo), pensada para conectarse directamente al frontend Angular ya entregado. Es la versión en MongoDB del backend (antes había una versión en PostgreSQL/Prisma con el mismo alcance).
+API REST para la tienda de juguetes. Cubre **productos**, **carrito** y **pedidos** (CRUD completo), pensada para conectarse directamente al frontend Angular ya entregado. Vive en la carpeta `backend/` del monorepo; el frontend está en `frontend/`.
 
 ## Requisitos
 

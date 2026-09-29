@@ -40,6 +40,9 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": { "buildTarget": "tienda-juguetes-angular:build:production" },
             "development": { "buildTarget": "tienda-juguetes-angular:build:development" }

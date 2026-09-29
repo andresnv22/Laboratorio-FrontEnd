@@ -89,8 +89,15 @@ export class CartService {
 }
 
 export function describeError(err: HttpErrorResponse): string {
-  if (err.status === 0) {
+  // Nuestro backend siempre responde los errores como { error: "..." }.
+  const backendMessage: string | undefined = err.error?.error;
+  if (backendMessage) {
+    return backendMessage;
+  }
+  // Sin ese cuerpo, la respuesta no vino del backend: el navegador no llegó (0)
+  // o el proxy de `ng serve` no lo encontró (5xx vacío).
+  if (err.status === 0 || err.status >= 500) {
     return 'No se pudo conectar con el servidor. ¿Está corriendo el backend en http://localhost:3000?';
   }
-  return err.error?.error ?? 'Ocurrió un error inesperado. Intenta de nuevo.';
+  return 'Ocurrió un error inesperado. Intenta de nuevo.';
 }

@@ -1,33 +1,17 @@
 # Juguetón — Tienda de juguetes (Angular)
 
-Frontend Angular 18 (standalone components) de la tienda: **Inicio**, **Catálogo**, **Producto** y **Carrito**. Está conectado al backend `tienda-juguetes-backend-mongo` (Node + Express + MongoDB), así que el catálogo, el carrito y los pedidos se leen y se guardan en MongoDB.
+Frontend Angular 18 (standalone components) de la tienda: **Inicio**, **Catálogo**, **Producto** y **Carrito**. Está conectado al backend de la carpeta [`../backend`](../backend) (Node + Express + MongoDB), así que el catálogo, el carrito y los pedidos se leen y se guardan en MongoDB.
 
 ## Cómo correrlo
 
-Necesitas **dos terminales**, una para cada proyecto.
-
-**Terminal 1: backend** (carpeta `tienda-juguetes-backend-mongo`)
-
-```bash
-npm run dev
-```
-
-Debe decir `Juguetón API (MongoDB) escuchando en http://localhost:3000`.
-
-**Terminal 2: frontend** (esta carpeta)
-
-```bash
-npm install
-npm start
-```
-
-Abre http://localhost:4200
+Mira el [README de la raíz](../README.md): desde la raíz del repo, `npm run backend` en una terminal y `npm run frontend` en otra. Luego abre http://localhost:4200
 
 Si el backend no está corriendo, las páginas muestran el aviso *"No se pudo conectar con el servidor"*.
 
 ## Cómo se conecta con el backend
 
-- `src/app/config/api.config.ts`: URL de la API (`http://localhost:3000/api`). Cámbiala si el backend corre en otro lado.
+- `src/app/config/api.config.ts`: las llamadas van a `/api/...`.
+- `proxy.conf.json`: en desarrollo, `ng serve` reenvía `/api` al backend en `http://localhost:3000`. El navegador solo ve `localhost:4200`, así que no hay problemas de CORS. Si el backend corre en otro puerto, cámbialo aquí.
 - `src/app/interceptors/cart-id.interceptor.ts`: agrega el header `x-cart-id` a cada llamada. El id se genera una sola vez por navegador y se guarda en `localStorage` (`services/cart-id.ts`), así el carrito sobrevive a recargas sin login.
 - `models/product.model.ts`: MongoDB devuelve el identificador como `_id`; `toProduct()` lo convierte al `id` que usa el frontend.
 
@@ -35,7 +19,7 @@ Si el backend no está corriendo, las páginas muestran el aviso *"No se pudo co
 
 ```
 src/app/
-  config/api.config.ts          URL del backend
+  config/api.config.ts          Prefijo de la API (/api)
   interceptors/                  Header x-cart-id en cada petición
   components/header/             Navegación y contador del carrito
   components/footer/             Pie de página
